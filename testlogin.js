@@ -13,7 +13,16 @@ $( function() {
         allFields = $( [] ).add( username ).add( email ).add( password ),
         tips = $( ".validateTips"),
         loginUsername = $( "#username-login" ),
-        loginPassword = $( "#password-login" );
+        loginPassword = $( "#password-login");
+    localStorage.setItem("isLogin",false);
+
+
+    //init();
+
+    //function init () {
+    //    $("span.glyphicon.glyphicon-star").hide();
+    //    $("span.glyphicon.glyphicon-star-empty").hide();
+    //}
 
     function updateTips( t ) {
         tips
@@ -96,9 +105,21 @@ $( function() {
                         alert("fail to login");
                     } else {
                         alert("success login");
+
                         $( "#create-user").hide();
+                        $( "#login-user").hide();
                         $( "#logout-user").show();
                         $("#users-contain").append('<div id="username-display">'+storeUsername+"</div>");
+
+                        var lastLoginTime = localStorage.getItem("time_visit");
+                        if (lastLoginTime) {
+                            document.getElementById("login-time").innerHTML = lastLoginTime;
+                        }
+
+                        //set cookie for time
+                        var dt = new Date();
+                        localStorage.setItem("time_visit",dt);
+                        localStorage.setItem("isLogin",true);
                     }
                 });
             } else{
@@ -163,8 +184,97 @@ $( function() {
 
     $( "#logout-user" ).button().on( "click", function() {
         $( "#create-user").show();
+        $( "#login-user").show();
         $( "#logout-user" ).hide();
         $("#username-display").remove();
+        localStorage.setItem("isLogin",false);
     });
 
-} );
+
+
+    //click on star-empty trigger this funcito (favorite)
+
+});
+
+$(function() {
+    function funcNameSave(element) {
+        var currentStarEmpty = element.target.className;
+        var showStar = currentStarEmpty.replace("glyphicon-star-empty","glyphicon-star");
+        var star = document.getElementsByClassName(showStar);
+        var emptyStar = document.getElementsByClassName(currentStarEmpty);
+        console.log(star);
+        console.log(emptyStar);
+        //document.getElementsByClassName(showStar).style.visibility = "visible";
+        document.getElementsByClassName(currentStarEmpty).after.style.visibility = "hidden";
+
+    }
+
+    //click on star trigger this function (unfavorite)
+    function funcNameDelete(element) {
+        var currentStar = element.target.className;
+        var EmptyStar = currentStar.replace("glyphicon-star","glyphicon-star-empty");
+        console.log(currentStar);
+        console.log(EmptyStar);
+        //document.getElementsByClassName(EmptyStar).style.visibility = "visible";
+        document.getElementsByClassName(currentStar).after.style.visibility = "hidden";
+    }
+    function getFeed(source) {
+        var url = "https://newsapi.org/v1/articles?source="+source+"&apiKey=619da0289a074d199fa387e4aa82608a";
+        $.get(url, function(data) {
+            var json = data;
+            //console.log($json);
+            var articles = json.articles;
+            articles.forEach(function(article) {
+                var article_div = document.createElement("div");
+                article_div.id = article.title;
+                article_div.className= "panel panel-default";
+                //article.forEach(function(key){
+                //    var paragraph = document.createElement("p");
+                //    paragraph .innerHTML=key+" : "+article[key];
+                //    article_div.append(paragraph);
+                //});
+
+                var favoriteCheckEmpty = document.createElement("span");
+                favoriteCheckEmpty.className = "glyphicon glyphicon-star-empty "+article.title;
+                favoriteCheckEmpty.addEventListener('click',funcNameSave);
+                var favoriteCheck = document.createElement("span");
+                favoriteCheck.className = "glyphicon glyphicon-star "+article.title;
+                favoriteCheck.addEventListener('click',funcNameDelete);
+                article_div.append(favoriteCheckEmpty);
+                article_div.append(favoriteCheck);
+                for (var key in article) {
+                    var paragraph = document.createElement("p");
+                    paragraph .innerHTML=key+" : "+article[key];
+                    article_div.append(paragraph);
+                }
+                $("#rss-reader").append(article_div);
+
+            });
+            //json.find("articles").each(function() {
+            //   //var $article = $(this),
+            //   //    $displayArticle = {
+            //   //        title: $article.find("title"),
+            //   //        author: $article.find("author"),
+            //   //        description: $article.find("description"),
+            //   //        url:$article.find("url"),
+            //   //        publishAt: $article.find("publishAt")
+            //   //    };
+            //   // console.log($displayArticle);
+            //});
+        });
+    }
+    getFeed("abc-news-au");
+
+});
+
+$(function(){
+
+
+
+    //if (localStorage.getItem("isLogin")) {
+    //    $("span.glyphicon.glyphicon-star").click(funcNameDelete);
+    //    $("span.glyphicon.glyphicon-star-empty").click(funcNameSave);
+    //} else {
+    //
+    //}
+});

@@ -6,6 +6,8 @@
     <title>jQuery UI Dialog - Modal form</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <!--<link rel="stylesheet" href="/resources/demos/style.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
     <style>
         label, input { display:block; }
         input.text { margin-bottom:12px; width:95%; padding: .4em; }
@@ -19,9 +21,12 @@
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>-->
     <script type="text/javascript" src="testlogin.js"></script>
 </head>
 <body>
+<div id="login-time"></div>
 
 <div id="dialog-form" title="Create new user">
     <p class="validateTips">All form fields are required.</p>
@@ -61,7 +66,13 @@
 </div>
 <button id="create-user">Create new user</button>
 <button id="login-user">login</button>
-<button id="logout-user" type="hidden">logout</button>
+<button id="logout-user">logout</button>
+<!--<button type="button" class="btn btn-default btn-lg">-->
+    <!--<span class="glyphicon glyphicon-star" aria-hidden="true"></span> Star-->
+    <!--<span class="glyphicon glyphicon-star" aria-hidden="true" type="hidden"></span>-->
+    <!--<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>-->
+<!--</button>-->
 
+<div class="container panel-group" id="rss-reader"></div>
 </body>
 </html>
