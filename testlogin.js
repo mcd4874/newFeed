@@ -2,6 +2,11 @@
  * Created by minhduong on 4/30/17.
  */
 $( function() {
+    localStorage.setItem("favorite_articles",JSON.stringify([]));
+    $("#feedSelection").hide();
+    $("#pickFeed").hide();
+
+
     $( "#logout-user" ).hide();
     var dialog, form, dialogLogin, loginForm,
 
@@ -120,6 +125,10 @@ $( function() {
                         var dt = new Date();
                         localStorage.setItem("time_visit",dt);
                         localStorage.setItem("isLogin",true);
+
+                    //    show section to pick feed
+                        $("#feedSelection").show();
+                        $("#pickFeed").show();
                     }
                 });
             } else{
@@ -188,6 +197,14 @@ $( function() {
         $( "#logout-user" ).hide();
         $("#username-display").remove();
         localStorage.setItem("isLogin",false);
+        $("#feedSelection").hide();
+        $("#pickFeed").hide();
+
+        //clean up feed after you log out
+        var myNode = document.getElementById("rss-reader");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
     });
 
 
@@ -198,73 +215,129 @@ $( function() {
 
 $(function() {
     function funcNameSave(element) {
-        var currentStarEmpty = element.target.className;
+        var currentStarEmpty = element.target.id;
         var showStar = currentStarEmpty.replace("glyphicon-star-empty","glyphicon-star");
-        var star = document.getElementsByClassName(showStar);
-        var emptyStar = document.getElementsByClassName(currentStarEmpty);
-        console.log(star);
-        console.log(emptyStar);
-        //document.getElementsByClassName(showStar).style.visibility = "visible";
-        document.getElementsByClassName(currentStarEmpty).after.style.visibility = "hidden";
+
+        //save the article title if it is favorite
+        var article_title = currentStarEmpty.replace("glyphicon glyphicon-star-empty ","");
+        var currentFavoriteList = JSON.parse(localStorage.getItem("favorite_articles"));
+
+        currentFavoriteList[currentFavoriteList.length]=article_title;
+
+        localStorage.setItem("favorite_articles",JSON.stringify(currentFavoriteList));
+
+        //update the favorite visible
+        document.getElementById(showStar).style.visibility = "visible";
+        document.getElementById(currentStarEmpty).style.visibility = "hidden";
 
     }
 
     //click on star trigger this function (unfavorite)
     function funcNameDelete(element) {
-        var currentStar = element.target.className;
+        var currentStar = element.target.id;
         var EmptyStar = currentStar.replace("glyphicon-star","glyphicon-star-empty");
-        console.log(currentStar);
-        console.log(EmptyStar);
-        //document.getElementsByClassName(EmptyStar).style.visibility = "visible";
-        document.getElementsByClassName(currentStar).after.style.visibility = "hidden";
+
+        //remove the ariticle if it is not favorite anymore
+        var article_title = currentStar.replace("glyphicon glyphicon-star","");
+        var currentFavoriteList = JSON.parse(localStorage.getItem("favorite_articles"));
+        var currentLocationToRemove = currentFavoriteList.indexOf(article_title);
+        if (currentLocationToRemove > -1)
+            currentFavoriteList.splice(currentLocationToRemove, 1);
+        localStorage.setItem("favorite_articles",JSON.stringify(currentFavoriteList));
+
+
+        //update the favorite visible
+        document.getElementById(EmptyStar).style.visibility = "visible";
+        document.getElementById(currentStar).style.visibility = "hidden";
     }
-    function getFeed(source) {
-        var url = "https://newsapi.org/v1/articles?source="+source+"&apiKey=619da0289a074d199fa387e4aa82608a";
-        $.get(url, function(data) {
-            var json = data;
-            //console.log($json);
-            var articles = json.articles;
-            articles.forEach(function(article) {
-                var article_div = document.createElement("div");
-                article_div.id = article.title;
-                article_div.className= "panel panel-default";
-                //article.forEach(function(key){
-                //    var paragraph = document.createElement("p");
-                //    paragraph .innerHTML=key+" : "+article[key];
-                //    article_div.append(paragraph);
-                //});
 
-                var favoriteCheckEmpty = document.createElement("span");
-                favoriteCheckEmpty.className = "glyphicon glyphicon-star-empty "+article.title;
-                favoriteCheckEmpty.addEventListener('click',funcNameSave);
-                var favoriteCheck = document.createElement("span");
-                favoriteCheck.className = "glyphicon glyphicon-star "+article.title;
-                favoriteCheck.addEventListener('click',funcNameDelete);
-                article_div.append(favoriteCheckEmpty);
-                article_div.append(favoriteCheck);
-                for (var key in article) {
-                    var paragraph = document.createElement("p");
-                    paragraph .innerHTML=key+" : "+article[key];
-                    article_div.append(paragraph);
-                }
-                $("#rss-reader").append(article_div);
 
-            });
-            //json.find("articles").each(function() {
-            //   //var $article = $(this),
-            //   //    $displayArticle = {
-            //   //        title: $article.find("title"),
-            //   //        author: $article.find("author"),
-            //   //        description: $article.find("description"),
-            //   //        url:$article.find("url"),
-            //   //        publishAt: $article.find("publishAt")
-            //   //    };
-            //   // console.log($displayArticle);
-            //});
+    function checkSaveArticle(articleTitle){
+        var list_favorite_article = JSON.parse(localStorage.getItem("favorite_articles"));
+        if (list_favorite_article.includes(articleTitle)) {
+            var elementToHide = "glyphicon glyphicon-star-empty "+articleTitle;
+            //$("#"+elementToHide).hide();
+            document.getElementById(elementToHide).style.visibility = "hidden";
+            //console.log("hide empty star if article is saved");
+        } else {
+            var elementToHide = "glyphicon glyphicon-star "+articleTitle;
+            //$("#"+elementToHide).hide();
+            document.getElementById(elementToHide).style.visibility = "hidden";
+            //console.log("star is hide if article isn't saved ");
+        }
+    }
+
+    function handleFeedSelectionChange() {
+        var myNode = document.getElementById("rss-reader");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+
+
+
+        var currentFeed = document.getElementById("feedSelection");
+        var url = "https://newsapi.org/v1/articles?source="+currentFeed.value+"&apiKey=619da0289a074d199fa387e4aa82608a";
+
+        $.ajax({
+            type: "GET", //rest Type
+            dataType: 'json',
+            url: url,
+            async: false,
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                var json = data;
+                //console.log($json);
+                var articles = json.articles;
+                articles.forEach(function(article) {
+                    var list_favorite_article = JSON.parse(localStorage.getItem("favorite_articles"));
+
+
+                    var article_div = document.createElement("div");
+                    article_div.id = article.title;
+                    article_div.className= "panel panel-default";
+
+                    var favoriteCheckEmpty = document.createElement("span");
+                    favoriteCheckEmpty.className = "glyphicon glyphicon-star-empty";
+                    favoriteCheckEmpty.id = "glyphicon glyphicon-star-empty "+article.title;
+                    favoriteCheckEmpty.addEventListener('click',funcNameSave);
+                    var favoriteCheck = document.createElement("span");
+                    favoriteCheck.className = "glyphicon glyphicon-star";
+                    favoriteCheck.id = "glyphicon glyphicon-star "+article.title;
+                    favoriteCheck.addEventListener('click',funcNameDelete);
+                    article_div.append(favoriteCheckEmpty);
+                    article_div.append(favoriteCheck);
+
+
+                    for (var key in article) {
+                        var paragraph = document.createElement("p");
+                        paragraph .innerHTML=key+" : "+article[key];
+                        article_div.append(paragraph);
+                    }
+                    $("#rss-reader").append(article_div);
+
+                    checkSaveArticle(article.title);
+
+                });
+            }
         });
     }
-    getFeed("abc-news-au");
 
+    var pickFeed = document.getElementById("pickFeed");
+    pickFeed.addEventListener('click', function () {
+        handleFeedSelectionChange();
+    });
+
+    if (JSON.parse(localStorage.getItem("isLogin"))) {
+        $("#feedSelection").show();
+        $("#pickFeed").show();
+        var pickFeed = document.getElementById("pickFeed");
+        pickFeed.addEventListener('click', function () {
+            handleFeedSelectionChange();
+        });
+    } else {
+        $("#feedSelection").hide();
+        $("#pickFeed").hide();
+    }
 });
 
 $(function(){
