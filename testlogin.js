@@ -205,6 +205,10 @@ $( function() {
         while (myNode.firstChild) {
             myNode.removeChild(myNode.firstChild);
         }
+        var myNode = document.getElementById("more-feeder");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
     });
 
 
@@ -267,17 +271,10 @@ $(function() {
         }
     }
 
-    function handleFeedSelectionChange() {
-        var myNode = document.getElementById("rss-reader");
-        while (myNode.firstChild) {
-            myNode.removeChild(myNode.firstChild);
-        }
+    function processNewFeed(sourceName, elementIdToAdd) {
+        var url = "https://newsapi.org/v1/articles?source="+sourceName+"&apiKey=619da0289a074d199fa387e4aa82608a";
 
-
-
-        var currentFeed = document.getElementById("feedSelection");
-        var url = "https://newsapi.org/v1/articles?source="+currentFeed.value+"&apiKey=619da0289a074d199fa387e4aa82608a";
-
+        console.log(url);
         $.ajax({
             type: "GET", //rest Type
             dataType: 'json',
@@ -291,7 +288,8 @@ $(function() {
                 articles.forEach(function(article) {
                     var list_favorite_article = JSON.parse(localStorage.getItem("favorite_articles"));
 
-
+                    console.log("here 1");
+                    console.log(article.title);
                     var article_div = document.createElement("div");
                     article_div.id = article.title;
                     article_div.className= "panel panel-default";
@@ -312,9 +310,14 @@ $(function() {
                         var paragraph = document.createElement("p");
                         paragraph .innerHTML=key+" : "+article[key];
                         article_div.append(paragraph);
-                    }
-                    $("#rss-reader").append(article_div);
+                        console.log("gethere 2");
 
+                    }
+                    //console.log(document.getElementById(elementIdToAdd)
+                    //$("#"+elementIdToAdd).append(article_div);
+                    $("#more-feeder").append(article_div);
+                    console.log("finish");
+                    console.log(article_div.id);
                     checkSaveArticle(article.title);
 
                 });
@@ -322,22 +325,50 @@ $(function() {
         });
     }
 
+    function handleFeedSelectionChange() {
+        var myNode = document.getElementById("rss-reader");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+        var currentFeed = document.getElementById("feedSelection");
+        processNewFeed(currentFeed.value, "rss-reader");
+    }
+
+    function loadMoreFeed (){
+
+        var sources = ["ars-technica","bild","breitbart-news","cnbc","daily-mail","google-news","hacker-news","new-scientist","ars-technica","ars-technica","ars-technica","nfl-news"];
+        sources.forEach(function(source) {
+            processNewFeed(source,"more-reader");
+        });
+
+    }
+
     var pickFeed = document.getElementById("pickFeed");
     pickFeed.addEventListener('click', function () {
         handleFeedSelectionChange();
     });
 
-    if (JSON.parse(localStorage.getItem("isLogin"))) {
-        $("#feedSelection").show();
-        $("#pickFeed").show();
-        var pickFeed = document.getElementById("pickFeed");
-        pickFeed.addEventListener('click', function () {
-            handleFeedSelectionChange();
+    $(document).ready(function() {
+        if (JSON.parse(localStorage.getItem("isLogin"))) {
+            $("#feedSelection").show();
+            $("#pickFeed").show();
+            var pickFeed = document.getElementById("pickFeed");
+            pickFeed.addEventListener('click', function () {
+                handleFeedSelectionChange();
+            });
+
+        } else {
+            $("#feedSelection").hide();
+            $("#pickFeed").hide();
+        }
+
+        $(window).scroll(function() {
+            loadMoreFeed();
         });
-    } else {
-        $("#feedSelection").hide();
-        $("#pickFeed").hide();
-    }
+
+    });
+
+
 });
 
 $(function(){
