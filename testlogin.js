@@ -22,12 +22,6 @@ $( function() {
     localStorage.setItem("isLogin",false);
 
 
-    //init();
-
-    //function init () {
-    //    $("span.glyphicon.glyphicon-star").hide();
-    //    $("span.glyphicon.glyphicon-star-empty").hide();
-    //}
 
     function updateTips( t ) {
         tips
@@ -89,16 +83,6 @@ $( function() {
 
     function checkUser() {
         var valid = true;
-        //allFields.removeClass( "ui-state-error" );
-        //
-        //valid = valid && checkLength( username, "username", 3, 16 );
-        //valid = valid && checkLength( email, "email", 6, 80 );
-        //valid = valid && checkLength( password, "password", 5, 16 );
-        //
-        //valid = valid && checkRegexp( username, /^[a-z]([0-9a-z_\s])+$/i, "Username may consist of a-z, 0-9, underscores, spaces and must begin with a letter." );
-        //valid = valid && checkRegexp( email, emailRegex, "eg. ui@jquery.com" );
-        //valid = valid && checkRegexp( password, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9" );
-
         if ( valid ) {
             if(localStorage){
                 $(document).ready(function(){
@@ -288,8 +272,6 @@ $(function() {
                 articles.forEach(function(article) {
                     var list_favorite_article = JSON.parse(localStorage.getItem("favorite_articles"));
 
-                    console.log("here 1");
-                    console.log(article.title);
                     var article_div = document.createElement("div");
                     article_div.id = article.title;
                     article_div.className= "panel panel-default";
@@ -313,11 +295,8 @@ $(function() {
                         console.log("gethere 2");
 
                     }
-                    //console.log(document.getElementById(elementIdToAdd)
-                    //$("#"+elementIdToAdd).append(article_div);
-                    $("#more-feeder").append(article_div);
-                    console.log("finish");
-                    console.log(article_div.id);
+
+                    $("#"+elementIdToAdd).append(article_div);
                     checkSaveArticle(article.title);
 
                 });
@@ -331,14 +310,14 @@ $(function() {
             myNode.removeChild(myNode.firstChild);
         }
         var currentFeed = document.getElementById("feedSelection");
-        processNewFeed(currentFeed.value, "rss-reader");
+        processNewFeed(currentFeed.value,"rss-reader");
     }
 
     function loadMoreFeed (){
 
         var sources = ["ars-technica","bild","breitbart-news","cnbc","daily-mail","google-news","hacker-news","new-scientist","ars-technica","ars-technica","ars-technica","nfl-news"];
         sources.forEach(function(source) {
-            processNewFeed(source,"more-reader");
+            processNewFeed(source,"more-feeder");
         });
 
     }
@@ -369,16 +348,4 @@ $(function() {
     });
 
 
-});
-
-$(function(){
-
-
-
-    //if (localStorage.getItem("isLogin")) {
-    //    $("span.glyphicon.glyphicon-star").click(funcNameDelete);
-    //    $("span.glyphicon.glyphicon-star-empty").click(funcNameSave);
-    //} else {
-    //
-    //}
 });
